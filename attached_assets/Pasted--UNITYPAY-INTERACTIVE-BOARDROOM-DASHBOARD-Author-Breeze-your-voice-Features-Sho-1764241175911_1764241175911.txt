@@ -1,0 +1,85 @@
+/**
+ * UNITYPAY INTERACTIVE BOARDROOM DASHBOARD
+ * Author: Breeze (your voice)
+ * Features:
+ * - Show Nano Agent balances
+ * - Trigger UPX mint / transfer
+ * - Run AI simulations
+ * - Display Boardroom discussions
+ */
+
+import React, { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import { UNITY_TOKEN_CONTRACT, NETWORK } from "./config.js";
+
+const NANO_AGENTS = [
+  "Athena", "Helios", "Solara", "Nexus",
+  "Artemis", "Morpheus", "Gaia", "Orion",
+  "Chronos", "Valkyrie", "Midas", "Echo"
+];
+
+export default function Dashboard() {
+  const [balances, setBalances] = useState({});
+  const [discussion, setDiscussion] = useState("");
+  const [log, setLog] = useState("");
+
+  async function fetchBalances() {
+    const resp = await fetch("/api/meetings/daily"); 
+    const data = await resp.json();
+    setBalances(
+      NANO_AGENTS.reduce((acc, a) => {
+        acc[a] = (Math.random() * 1000).toFixed(2); // mock balances
+        return acc;
+      }, {})
+    );
+    setDiscussion(data.report || "Boardroom awaiting updates...");
+  }
+
+  async function runSimulation() {
+    const resp = await fetch("/api/meetings/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "Run UPX transaction simulation" }),
+    });
+    const data = await resp.json();
+    setLog(data.reply || "Simulation complete.");
+  }
+
+  useEffect(() => {
+    fetchBalances();
+  }, []);
+
+  return (
+    <div style={{ padding: 20, color: "#fff", fontFamily: "Inter, sans-serif" }}>
+      <h1 style={{ color: "#7A1DFF" }}>UnityPay Interactive Boardroom</h1>
+      <h2>Network: {NETWORK}</h2>
+
+      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+        {NANO_AGENTS.map((a) => (
+          <div key={a} style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 12 }}>
+            <strong>{a}</strong>
+            <p>Balance: {balances[a] || "0"} UPX</p>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={runSimulation}
+        style={{ marginTop: 20, padding: "12px 24px", borderRadius: 12, background: "#4A00D9", color: "#fff", border: 0 }}
+      >
+        Run Nano Agent Simulation
+      </button>
+
+      <div style={{ marginTop: 20, padding: 12, background: "rgba(0,0,0,0.25)", borderRadius: 12, maxHeight: 300, overflowY: "auto" }}>
+        <pre>{discussion}</pre>
+      </div>
+
+      <div style={{ marginTop: 20, padding: 12, background: "rgba(0,0,0,0.15)", borderRadius: 12, maxHeight: 200, overflowY: "auto" }}>
+        <pre>{log}</pre>
+      </div>
+    </div>
+  );
+}
+
+// Render
+createRoot(document.getElementById("root")).render(<Dashboard />);

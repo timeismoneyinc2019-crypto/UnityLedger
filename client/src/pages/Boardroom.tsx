@@ -9,6 +9,7 @@ import { MeetingTabs } from "@/components/MeetingTabs";
 import { MeetingReport } from "@/components/MeetingReport";
 import { ChatInterface } from "@/components/ChatInterface";
 import { AgentGrid } from "@/components/AgentCard";
+import { InteractiveBoardroom } from "@/components/InteractiveBoardroom";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { 
   Calendar, 
@@ -107,22 +108,41 @@ export default function Boardroom() {
             AI-Powered Governance with 12 Nano Agents
           </p>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => refetch()}
-            disabled={reportLoading}
-            data-testid="button-refresh"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${reportLoading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button 
-            size="sm"
-            onClick={() => runMeetingMutation.mutate()}
-            disabled={runMeetingMutation.isPending}
+
+        <Tabs defaultValue="overview" className="w-full md:w-auto" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full md:w-auto grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="meeting">Meeting</TabsTrigger>
+            <TabsTrigger value="chat">Chat</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {activeTab === "overview" && (
+        <InteractiveBoardroom
+          onRunSimulation={() => runMeetingMutation.mutate()}
+          isSimulationLoading={runMeetingMutation.isPending}
+          discussion={report?.summary || "Boardroom awaiting updates..."}
+        />
+      )}
+
+      {activeTab === "meeting" && (
+        <>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => refetch()}
+              disabled={reportLoading}
+              data-testid="button-refresh"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${reportLoading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button 
+              size="sm"
+              onClick={() => runMeetingMutation.mutate()}
+              disabled={runMeetingMutation.isPending}
             data-testid="button-run-meeting"
           >
             <Play className="w-4 h-4 mr-2" />
