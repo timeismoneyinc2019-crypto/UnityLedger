@@ -11,7 +11,6 @@
 
 const hre = require("hardhat");
 const fs = require("fs");
-require("dotenv").config();
 
 async function deployUPX() {
   console.log("💜 Starting UPX deployment...");
@@ -19,13 +18,17 @@ async function deployUPX() {
   const [deployer] = await hre.ethers.getSigners();
   console.log("📍 Deploying with account:", deployer.address);
 
-  const initialSupply = hre.ethers.parseUnits("1000000", 18); // 1M UPX
+  // UPXToken constructor mints 100M tokens to deployer automatically
   const UPXToken = await hre.ethers.getContractFactory("UPXToken");
-  const upx = await UPXToken.deploy(initialSupply);
+  const upx = await UPXToken.deploy();
 
   await upx.waitForDeployment();
   const contractAddress = await upx.getAddress();
   console.log("✅ UPXToken deployed to:", contractAddress);
+
+  // Get initial supply info
+  const totalSupply = await upx.totalSupply();
+  console.log("💰 Initial Supply:", hre.ethers.formatUnits(totalSupply, 18), "UPX");
 
   // Save contract address to .env
   const envContent = `\nUNITY_TOKEN_CONTRACT=${contractAddress}\n`;
