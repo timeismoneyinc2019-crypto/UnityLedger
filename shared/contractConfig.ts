@@ -12,22 +12,40 @@ export const SUPPORTED_NETWORKS = {
   ethereum: {
     chainId: 1,
     name: "Ethereum Mainnet",
-    rpcUrl: process.env.ETH_RPC_URL || "https://eth.llamarpc.com",
+    rpcUrl: typeof import.meta !== 'undefined' && import.meta.env.VITE_ETH_MAINNET_RPC 
+      ? import.meta.env.VITE_ETH_MAINNET_RPC 
+      : "https://eth.llamarpc.com",
   },
   polygon: {
     chainId: 137,
     name: "Polygon Mainnet", 
-    rpcUrl: process.env.POLYGON_RPC_URL || "https://polygon.llamarpc.com",
+    rpcUrl: typeof import.meta !== 'undefined' && import.meta.env.VITE_POLYGON_MAINNET_RPC
+      ? import.meta.env.VITE_POLYGON_MAINNET_RPC
+      : "https://polygon.llamarpc.com",
+  },
+  solana: {
+    chainId: 900,
+    name: "Solana Mainnet",
+    rpcUrl: typeof import.meta !== 'undefined' && import.meta.env.VITE_SOLANA_MAINNET_RPC
+      ? import.meta.env.VITE_SOLANA_MAINNET_RPC
+      : "https://api.mainnet-beta.solana.com",
+  },
+  bitcoin: {
+    chainId: 0,
+    name: "Bitcoin Mainnet",
+    rpcUrl: typeof import.meta !== 'undefined' && import.meta.env.VITE_BITCOIN_MAINNET_RPC
+      ? import.meta.env.VITE_BITCOIN_MAINNET_RPC
+      : "https://blockstream.info/api/",
   },
   goerli: {
     chainId: 5,
     name: "Goerli Testnet",
-    rpcUrl: process.env.GOERLI_RPC_URL || "https://rpc.ankr.com/eth_goerli",
+    rpcUrl: "https://rpc.ankr.com/eth_goerli",
   },
   sepolia: {
     chainId: 11155111,
     name: "Sepolia Testnet",
-    rpcUrl: process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org",
+    rpcUrl: "https://rpc.sepolia.org",
   },
   localhost: {
     chainId: 31337,
