@@ -14,9 +14,20 @@ UnityPay 2045 is a revolutionary fintech platform combining AI-powered governanc
 - Interactive chat interface for agent queries
 - User Dashboard with portfolio and transaction history
 - Solidity UPX Token contract (ERC-20) with 21 passing tests
+- Stripe payment integration with 4 UPX token packages
+- Multi-chain wallet UI (Ethereum, Polygon, Solana, Bitcoin)
 - Royal purple design theme with glassmorphic UI elements
 
 ## Recent Changes
+- **Nov 27, 2025**: Complete MVP with payments and multi-chain wallet
+  - Stripe payment integration with webhook processing
+  - 4 UPX token packages: Starter ($9.99), Growth ($39.99), Pro ($179.99), Elite ($599.99)
+  - Purchase page with Stripe checkout flow
+  - Multi-chain wallet page with mock connections
+  - Support for Ethereum, Polygon, Solana, and Bitcoin networks
+  - Wallet address display, copy, and explorer links
+  - Real-time stats for connected wallets and UPX balance
+
 - **Nov 27, 2025**: Full MVP with blockchain integration
   - PostgreSQL database setup with Drizzle ORM
   - WebSocket real-time updates on /ws path
@@ -41,22 +52,34 @@ UnityPay 2045 is a revolutionary fintech platform combining AI-powered governanc
 - `pages/Boardroom.tsx` - Main dashboard with meeting reports and chat
 - `pages/Agents.tsx` - Nano agents grid view
 - `pages/Analytics.tsx` - Performance metrics dashboard
+- `pages/Purchase.tsx` - UPX token purchase with Stripe
+- `pages/PurchaseSuccess.tsx` - Post-purchase confirmation
+- `pages/Wallet.tsx` - Multi-chain wallet connections
+- `pages/Dashboard.tsx` - User portfolio and transactions
 - `components/AgentCard.tsx` - Individual agent display
 - `components/ChatInterface.tsx` - AI chat with agents
 - `components/MeetingReport.tsx` - Meeting report display
 - `components/MeetingTabs.tsx` - Meeting type selector
-- `components/Header.tsx` - Top navigation with theme toggle
-- `components/Sidebar.tsx` - Left navigation menu
+- `components/AppSidebar.tsx` - Left navigation menu
 - `components/ThemeProvider.tsx` - Light/dark mode provider
 
 ### Backend (`server/`)
 - **Framework**: Express.js
 - **AI Provider**: OpenAI via Replit AI Integrations (no API key required)
+- **Payments**: Stripe with stripe-replit-sync
 
 **Key Files:**
 - `routes.ts` - API endpoint definitions
 - `storage.ts` - In-memory data storage
+- `stripeClient.ts` - Stripe client initialization
+- `stripeService.ts` - Stripe business logic
+- `stripeStorage.ts` - Stripe data queries
+- `webhookHandlers.ts` - Stripe webhook processing
 - `ai/nano_meetings.ts` - AI meeting generation logic
+
+### Blockchain (`contracts/`)
+- `UPXToken.sol` - ERC-20 token contract
+- `test/UPXToken.test.cjs` - 21 passing Hardhat tests
 
 ### Shared (`shared/`)
 - `schema.ts` - TypeScript types and interfaces
@@ -73,6 +96,9 @@ UnityPay 2045 is a revolutionary fintech platform combining AI-powered governanc
 | DELETE | `/api/chat/history` | Clear chat history |
 | POST | `/api/audit/run` | Run security audit |
 | GET | `/api/agents` | List all agents |
+| GET | `/api/stripe/products` | List UPX token packages |
+| POST | `/api/stripe/checkout` | Create Stripe checkout session |
+| POST | `/api/stripe/webhook/:id` | Stripe webhook endpoint |
 
 ## The 12 Nano Agents
 
@@ -89,6 +115,22 @@ UnityPay 2045 is a revolutionary fintech platform combining AI-powered governanc
 11. **Aurora** - Innovation & R&D
 12. **Sentinel** - Monitoring & Alerts
 
+## UPX Token Packages
+
+| Package | UPX Amount | Price | Bonus |
+|---------|-----------|-------|-------|
+| Starter | 1,000 | $9.99 | - |
+| Growth | 5,000 | $39.99 | 10% bonus |
+| Pro | 25,000 | $179.99 | 20% bonus |
+| Elite | 100,000 | $599.99 | 30% bonus + priority |
+
+## Supported Blockchains
+
+- **Ethereum** - ERC-20 UPX tokens
+- **Polygon** - Low-fee transactions
+- **Solana** - High-speed transfers
+- **Bitcoin** - Cross-chain bridge support
+
 ## Running the Application
 
 ```bash
@@ -96,6 +138,14 @@ npm run dev
 ```
 
 This starts both the Express backend and Vite frontend on port 5000.
+
+## Running Tests
+
+```bash
+npx hardhat test --config hardhat.config.cjs
+```
+
+Runs the 21 UPX token contract tests.
 
 ## Design System
 
