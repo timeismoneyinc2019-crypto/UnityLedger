@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, jsonb, integer, boolean, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,15 +7,94 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email"),
+  walletAddress: text("wallet_address"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  email: true,
+  walletAddress: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+export const meetingReports = pgTable("meeting_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(),
+  summary: text("summary").notNull(),
+  agentContributions: jsonb("agent_contributions").notNull().$type<AgentContribution[]>(),
+  actionItems: jsonb("action_items").notNull().$type<ActionItem[]>(),
+  metrics: jsonb("metrics").$type<MetricUpdate[]>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMeetingReportSchema = createInsertSchema(meetingReports).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMeetingReport = z.infer<typeof insertMeetingReportSchema>;
+export type SelectMeetingReport = typeof meetingReports.$inferSelect;
+
+export const chatMessages = pgTable("chat_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  agentId: text("agent_id"),
+  agentName: text("agent_name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type SelectChatMessage = typeof chatMessages.$inferSelect;
+
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  report: text("report").notNull(),
+  severity: text("severity").notNull().default("info"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type SelectAuditLog = typeof auditLogs.$inferSelect;
+
+export const transactions = pgTable("transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  type: text("type").notNull(),
+  amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
+  currency: text("currency").notNull(),
+  status: text("status").notNull().default("pending"),
+  stripePaymentId: text("stripe_payment_id"),
+  txHash: text("tx_hash"),
+  fromAddress: text("from_address"),
+  toAddress: text("to_address"),
+  chain: text("chain"),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertTransactionSchema = createInsertSchema(transactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
+export type SelectTransaction = typeof transactions.$inferSelect;
 
 export type AgentStatus = "active" | "idle" | "processing";
 

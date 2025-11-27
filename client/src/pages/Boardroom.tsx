@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,16 @@ import { MeetingTabs } from "@/components/MeetingTabs";
 import { MeetingReport } from "@/components/MeetingReport";
 import { ChatInterface } from "@/components/ChatInterface";
 import { AgentGrid } from "@/components/AgentCard";
+import { useWebSocket } from "@/hooks/use-websocket";
 import { 
   Calendar, 
   Users, 
   Activity, 
   Zap,
   RefreshCw,
-  Play
+  Play,
+  Wifi,
+  WifiOff
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { NANO_AGENTS, MEETING_TYPES, type MeetingType, type MeetingReport as MeetingReportType, type ChatMessage } from "@shared/schema";
@@ -24,6 +27,26 @@ export default function Boardroom() {
   const [activeMeetingType, setActiveMeetingType] = useState<MeetingType>("daily");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [activeTab, setActiveTab] = useState("meeting");
+  const { isConnected, lastMessage, clientCount } = useWebSocket();
+
+  const { data: chatHistory } = useQuery<ChatMessage[]>({
+    queryKey: ["/api/chat/history"],
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (chatHistory && chatHistory.length > 0 && chatMessages.length === 0) {
+      setChatMessages(chatHistory);
+    }
+  }, [chatHistory]);
+
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.event === "meeting_completed") {
+        queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      }
+    }
+  }, [lastMessage]);
 
   const { data: report, isLoading: reportLoading, refetch } = useQuery<MeetingReportType>({
     queryKey: ["/api/meetings", activeMeetingType],
@@ -131,11 +154,11 @@ export default function Boardroom() {
           color="text-purple-500"
         />
         <StatCard 
-          icon={Zap} 
+          icon={isConnected ? Wifi : WifiOff} 
           label="Prime Brain" 
-          value="Online" 
-          subtext="Latency: 12ms"
-          color="text-yellow-500"
+          value={isConnected ? "Online" : "Connecting..."} 
+          subtext={isConnected ? `${clientCount} connected` : "Reconnecting..."}
+          color={isConnected ? "text-green-500" : "text-yellow-500"}
         />
       </div>
 

@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { generateMeetingReport, askAgents, runAudit } from "./ai/nano_meetings";
 import type { MeetingType, ChatMessage } from "@shared/schema";
@@ -7,17 +8,55 @@ import { randomUUID } from "crypto";
 
 const VALID_MEETING_TYPES: MeetingType[] = ["daily", "weekly", "monthly", "quarterly", "annually", "oncall"];
 
+const clients = new Set<WebSocket>();
+
+function broadcast(event: string, data: unknown) {
+  const message = JSON.stringify({ event, data, timestamp: new Date().toISOString() });
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
+  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+
+  wss.on("connection", (ws) => {
+    clients.add(ws);
+    console.log("WebSocket client connected. Total clients:", clients.size);
+
+    ws.send(JSON.stringify({
+      event: "connected",
+      data: { message: "Connected to UnityPay 2045 Prime Brain", clients: clients.size },
+      timestamp: new Date().toISOString(),
+    }));
+
+    broadcast("client_count", { count: clients.size });
+
+    ws.on("close", () => {
+      clients.delete(ws);
+      console.log("WebSocket client disconnected. Total clients:", clients.size);
+      broadcast("client_count", { count: clients.size });
+    });
+
+    ws.on("error", (error) => {
+      console.error("WebSocket error:", error);
+      clients.delete(ws);
+    });
+  });
+
   app.get("/api/health", (req, res) => {
     res.json({ 
       status: "ok", 
       service: "UnityPay 2045 Prime Brain",
       timestamp: new Date().toISOString(),
       agents: 12,
+      connectedClients: clients.size,
     });
   });
 
@@ -57,12 +96,17 @@ export async function registerRoutes(
         });
       }
 
+      broadcast("meeting_started", { type, message: `${type.charAt(0).toUpperCase() + type.slice(1)} meeting in progress...` });
+
       const report = await generateMeetingReport(type);
       await storage.saveMeetingReport(report);
+
+      broadcast("meeting_completed", { type, report });
 
       res.json(report);
     } catch (error) {
       console.error("Error running meeting:", error);
+      broadcast("meeting_error", { error: "Meeting generation failed" });
       res.status(500).json({ error: "Failed to run meeting" });
     }
   });
@@ -83,6 +127,8 @@ export async function registerRoutes(
       };
       await storage.addChatMessage(userMessage);
 
+      broadcast("chat_message", userMessage);
+
       const { response, agentName } = await askAgents(message);
 
       const assistantMessage: ChatMessage = {
@@ -93,6 +139,8 @@ export async function registerRoutes(
         agentName,
       };
       await storage.addChatMessage(assistantMessage);
+
+      broadcast("chat_message", assistantMessage);
 
       res.json({ 
         response, 
@@ -118,6 +166,7 @@ export async function registerRoutes(
   app.delete("/api/chat/history", async (req, res) => {
     try {
       await storage.clearChatHistory();
+      broadcast("chat_cleared", { message: "Chat history cleared" });
       res.json({ success: true });
     } catch (error) {
       console.error("Error clearing chat history:", error);
@@ -127,10 +176,17 @@ export async function registerRoutes(
 
   app.post("/api/audit/run", async (req, res) => {
     try {
+      broadcast("audit_started", { message: "Security audit in progress..." });
+      
       const report = await runAudit();
+      await storage.saveAuditLog({ report, severity: "info" });
+      
+      broadcast("audit_completed", { report });
+      
       res.json({ report, timestamp: new Date().toISOString() });
     } catch (error) {
       console.error("Error running audit:", error);
+      broadcast("audit_error", { error: "Audit failed" });
       res.status(500).json({ error: "Failed to run audit" });
     }
   });
@@ -151,6 +207,16 @@ export async function registerRoutes(
       { id: "sentinel", name: "Sentinel", role: "Monitoring & Alerts", status: "active" },
     ];
     res.json(agents);
+  });
+
+  app.get("/api/audit/logs", async (req, res) => {
+    try {
+      const logs = await storage.getAuditLogs();
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      res.status(500).json({ error: "Failed to fetch audit logs" });
+    }
   });
 
   return httpServer;
