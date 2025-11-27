@@ -176,6 +176,20 @@ The script:
 3. Updates `shared/contractConfig.ts` for frontend
 4. Creates deployment record in `deployments/` folder
 
+## AI-UPX Transaction Simulator
+
+Run Nano Agent transaction simulations with AI-powered boardroom discussions:
+
+```bash
+node scripts/ai_upx_simulator.cjs
+```
+
+The simulator:
+1. Simulates random UPX transfers between the 12 Nano Agents
+2. Triggers governance mint/burn events
+3. Uses AI (via Replit integrations) for boardroom analysis
+4. Saves simulation reports to `reports/` folder
+
 ## Design System
 
 ### Colors (Royal Purple Theme)
