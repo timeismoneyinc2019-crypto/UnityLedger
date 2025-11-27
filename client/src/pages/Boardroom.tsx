@@ -10,6 +10,7 @@ import { MeetingReport } from "@/components/MeetingReport";
 import { ChatInterface } from "@/components/ChatInterface";
 import { AgentGrid } from "@/components/AgentCard";
 import { InteractiveBoardroom } from "@/components/InteractiveBoardroom";
+import { Boardroom3D } from "@/components/Boardroom3D";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { 
   Calendar, 
@@ -110,13 +111,20 @@ export default function Boardroom() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full md:w-auto" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full md:w-auto grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-4">
+            <TabsTrigger value="3d">3D View</TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="meeting">Meeting</TabsTrigger>
             <TabsTrigger value="chat">Chat</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
+
+      {activeTab === "3d" && (
+        <div className="h-screen -mx-4 md:-mx-6 -my-6">
+          <Boardroom3D />
+        </div>
+      )}
 
       {activeTab === "overview" && (
         <InteractiveBoardroom
