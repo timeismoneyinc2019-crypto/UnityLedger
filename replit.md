@@ -155,6 +155,27 @@ npx hardhat test --config hardhat.config.cjs
 
 Runs the 21 UPX token contract tests.
 
+## Deploying UPX Token
+
+Use Breeze's deployment script to deploy UPX token and connect to the dashboard:
+
+```bash
+# Local deployment (Hardhat network)
+npx hardhat run scripts/deploy_upx_and_connect.cjs
+
+# Testnet deployment (requires RPC URL and private key in .env)
+npx hardhat run scripts/deploy_upx_and_connect.cjs --network sepolia
+
+# Mainnet deployment
+npx hardhat run scripts/deploy_upx_and_connect.cjs --network mainnet
+```
+
+The script:
+1. Deploys UPXToken contract with 1M initial supply
+2. Saves contract address to `.env`
+3. Updates `shared/contractConfig.ts` for frontend
+4. Creates deployment record in `deployments/` folder
+
 ## Design System
 
 ### Colors (Royal Purple Theme)
