@@ -1,0 +1,99 @@
+/**
+ * UNITYPAY AI-UPX TRANSACTION SIMULATOR
+ * Nano Agents transact, monitor, and discuss UPX in real-time.
+ * Author: Breeze (your voice)
+ *
+ * Usage:
+ * 1) Save as ai_upx_simulator.js
+ * 2) Make sure UPX is deployed & UNITY_TOKEN_CONTRACT set in .env
+ * 3) Run: node ai_upx_simulator.js
+ */
+
+import { ethers } from "hardhat";
+import fs from "fs";
+import dotenv from "dotenv";
+import OpenAI from "openai";
+
+dotenv.config();
+
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const NANO_AGENTS = [
+  "Athena", "Helios", "Solara", "Nexus",
+  "Artemis", "Morpheus", "Gaia", "Orion",
+  "Chronos", "Valkyrie", "Midas", "Echo"
+];
+
+async function getSigner() {
+  const provider = new ethers.JsonRpcProvider(
+    process.env.DEPLOY_NETWORK === "polygon" ? process.env.POLYGON_RPC : process.env.ETH_GOERLI_RPC
+  );
+  return new ethers.Wallet(process.env.WALLET_PRIVATE_KEY, provider);
+}
+
+async function loadUPX(signer) {
+  const upxAddress = process.env.UNITY_TOKEN_CONTRACT;
+  const UPX = await ethers.getContractFactory("UPX");
+  return UPX.attach(upxAddress).connect(signer);
+}
+
+async function simulateTransactions(upx) {
+  console.log("💜 Simulating AI Nano Agent transactions...");
+  let balances = {};
+  for (let agent of NANO_AGENTS) balances[agent] = ethers.parseUnits("1000", 18);
+
+  // Random transfers between agents
+  for (let i = 0; i < 5; i++) {
+    let from = NANO_AGENTS[Math.floor(Math.random() * NANO_AGENTS.length)];
+    let to = NANO_AGENTS[Math.floor(Math.random() * NANO_AGENTS.length)];
+    if (from === to) continue;
+    let amount = ethers.parseUnits((Math.random() * 100).toFixed(2), 18);
+
+    console.log(`🔁 ${from} transfers ${ethers.formatUnits(amount,18)} UPX to ${to}`);
+    balances[from] = balances[from].sub(amount);
+    balances[to] = balances[to].add(amount);
+
+    // Mint or burn randomly
+    if (Math.random() < 0.2) {
+      let mintAmount = ethers.parseUnits((Math.random() * 50).toFixed(2), 18);
+      console.log(`✨ ${from} triggers mint of ${ethers.formatUnits(mintAmount,18)} UPX`);
+      // await upx.mint(signer.address, mintAmount); // Uncomment for real blockchain
+    }
+  }
+
+  return balances;
+}
+
+async function nanoAgentDiscussion(balances) {
+  const prompt = `
+You are the UnityPay AI Boardroom. 
+Nano Agents: ${NANO_AGENTS.join(", ")}. 
+Current simulated balances: ${JSON.stringify(
+    Object.fromEntries(NANO_AGENTS.map(a => [a, ethers.formatUnits(balances[a],18)]))
+  )}
+Discuss: 
+- Security checks
+- Fraud detection
+- Suggested UPX optimizations
+- Any action items
+Provide concise summary and 3 code suggestions (safe) for improving transactions.
+`;
+  const resp = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.2
+  });
+  console.log("💬 Boardroom Discussion:\n", resp.choices[0].message.content);
+}
+
+(async () => {
+  try {
+    const signer = await getSigner();
+    const upx = await loadUPX(signer);
+    const balances = await simulateTransactions(upx);
+    await nanoAgentDiscussion(balances);
+    console.log("💜 Simulation complete. Your AI Nano Agents have discussed UPX activity.");
+  } catch (e) {
+    console.error("❌ Simulation failed:", e);
+  }
+})();

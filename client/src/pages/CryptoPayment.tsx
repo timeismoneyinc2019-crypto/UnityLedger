@@ -114,8 +114,16 @@ export default function CryptoPayment() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const calculateCryptoAmount = (usd: number, rate: number) => {
-    return (usd / rate).toFixed(8);
+  const calculateCryptoAmount = (usd: number, rate: number): string => {
+    const amount = usd / rate;
+    return amount.toFixed(8);
+  };
+
+  const toWei = (ethAmount: string): string => {
+    const [whole, decimal = ""] = ethAmount.split(".");
+    const paddedDecimal = decimal.padEnd(18, "0").slice(0, 18);
+    const weiStr = whole + paddedDecimal;
+    return BigInt(weiStr).toString();
   };
 
   const copyAddress = () => {
@@ -130,13 +138,12 @@ export default function CryptoPayment() {
 
   const generateQRData = () => {
     const amount = calculateCryptoAmount(selectedPackage.usd, selectedNetwork.rate);
-    const amountNum = parseFloat(amount);
     
     if (selectedNetwork.id === "ethereum") {
-      const weiAmount = BigInt(Math.floor(amountNum * 1e18)).toString();
+      const weiAmount = toWei(amount);
       return `ethereum:${selectedNetwork.address}@1?value=${weiAmount}`;
     } else if (selectedNetwork.id === "polygon") {
-      const weiAmount = BigInt(Math.floor(amountNum * 1e18)).toString();
+      const weiAmount = toWei(amount);
       return `ethereum:${selectedNetwork.address}@137?value=${weiAmount}`;
     } else if (selectedNetwork.id === "bitcoin") {
       return `bitcoin:${selectedNetwork.address}?amount=${amount}`;

@@ -19,6 +19,13 @@ UnityPay 2045 is a revolutionary fintech platform combining AI-powered governanc
 - Royal purple design theme with glassmorphic UI elements
 
 ## Recent Changes
+- **Nov 27, 2025**: Added crypto wallet payments
+  - Crypto payment page with QR code generation (qrcode.react)
+  - Standards-compliant payment URIs: EIP-681 (ETH/Polygon), BIP-21 (BTC), Solana Pay (SOL)
+  - Package and network selection with dynamic QR updates
+  - Payment flow simulation (pending → confirming → complete)
+  - Integrated crypto option on Purchase page alongside Stripe
+
 - **Nov 27, 2025**: Complete MVP with payments and multi-chain wallet
   - Stripe payment integration with webhook processing
   - 4 UPX token packages: Starter ($9.99), Growth ($39.99), Pro ($179.99), Elite ($599.99)
@@ -52,7 +59,8 @@ UnityPay 2045 is a revolutionary fintech platform combining AI-powered governanc
 - `pages/Boardroom.tsx` - Main dashboard with meeting reports and chat
 - `pages/Agents.tsx` - Nano agents grid view
 - `pages/Analytics.tsx` - Performance metrics dashboard
-- `pages/Purchase.tsx` - UPX token purchase with Stripe
+- `pages/Purchase.tsx` - UPX token purchase with Stripe and crypto options
+- `pages/CryptoPayment.tsx` - Crypto payment with QR codes for ETH/MATIC/SOL/BTC
 - `pages/PurchaseSuccess.tsx` - Post-purchase confirmation
 - `pages/Wallet.tsx` - Multi-chain wallet connections
 - `pages/Dashboard.tsx` - User portfolio and transactions
