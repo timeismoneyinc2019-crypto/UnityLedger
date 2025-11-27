@@ -16,6 +16,7 @@ import Dashboard from "@/pages/Dashboard";
 import Wallet from "@/pages/Wallet";
 import Purchase from "@/pages/Purchase";
 import PurchaseSuccess from "@/pages/PurchaseSuccess";
+import CryptoPayment from "@/pages/CryptoPayment";
 import Placeholder from "@/pages/Placeholder";
 import NotFound from "@/pages/not-found";
 
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/wallet" component={Wallet} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/purchase" component={Purchase} />
+      <Route path="/purchase/crypto" component={CryptoPayment} />
       <Route path="/purchase/success" component={PurchaseSuccess} />
       <Route path="/reports">
         <Placeholder 

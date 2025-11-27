@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Coins, Zap, Crown, Rocket, CheckCircle2 } from "lucide-react";
+import { Loader2, Coins, Zap, Crown, Rocket, CheckCircle2, Wallet, CreditCard } from "lucide-react";
+import { SiEthereum, SiBitcoin } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -75,6 +77,7 @@ const PACKAGE_BENEFITS: Record<string, string[]> = {
 
 export default function Purchase() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
 
   const { data: productsData, isLoading } = useQuery<{ data: Product[] }>({
@@ -238,18 +241,47 @@ export default function Purchase() {
         </div>
       )}
 
-      <div className="mt-12 text-center">
-        <Card className="max-w-2xl mx-auto bg-muted/50">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <CheckCircle2 className="w-5 h-5 text-green-500" />
-              <span className="font-medium">Secure Payment Processing</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              All transactions are processed securely through Stripe. Your payment information is never stored on our servers.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <Card className="bg-muted/50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="w-5 h-5 text-primary" />
+                <span className="font-medium">Card Payment</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Pay securely with credit/debit card through Stripe. Instant processing.
+              </p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span>Secure payment processing</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Wallet className="w-5 h-5 text-primary" />
+                <span className="font-medium">Crypto Payment</span>
+                <Badge variant="secondary" className="text-xs">New</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Pay with ETH, MATIC, SOL, or BTC directly from your wallet.
+              </p>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => navigate("/purchase/crypto")}
+                data-testid="button-pay-crypto"
+              >
+                <SiEthereum className="w-4 h-4 mr-2" />
+                <SiBitcoin className="w-4 h-4 mr-2" />
+                Pay with Crypto
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
