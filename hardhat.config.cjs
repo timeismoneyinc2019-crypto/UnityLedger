@@ -22,6 +22,10 @@ module.exports = {
     hardhat: {
       chainId: 31337,
     },
+    sepolia: {
+      url: process.env.VITE_ETH_SEPOLIA_RPC || "https://rpc.sepolia.org",
+      accounts: process.env.WALLET_PRIVATE_KEY ? [process.env.WALLET_PRIVATE_KEY] : [],
+    },
   },
   mocha: {
     timeout: 60000,
