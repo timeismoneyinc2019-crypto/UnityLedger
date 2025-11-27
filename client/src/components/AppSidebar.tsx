@@ -20,7 +20,8 @@ import {
   Wallet,
   FileText,
   HelpCircle,
-  Zap
+  Zap,
+  Coins
 } from "lucide-react";
 
 const mainNavItems = [
@@ -29,6 +30,7 @@ const mainNavItems = [
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/security", label: "Security", icon: Shield },
   { path: "/wallet", label: "UPX Wallet", icon: Wallet },
+  { path: "/purchase", label: "Buy UPX", icon: Coins },
   { path: "/reports", label: "Reports", icon: FileText },
 ];
 

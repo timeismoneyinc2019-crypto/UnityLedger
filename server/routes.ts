@@ -5,6 +5,9 @@ import { storage } from "./storage";
 import { generateMeetingReport, askAgents, runAudit } from "./ai/nano_meetings";
 import type { MeetingType, ChatMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { stripeService } from "./stripeService";
+import { stripeStorage } from "./stripeStorage";
+import { getStripePublishableKey } from "./stripeClient";
 
 const VALID_MEETING_TYPES: MeetingType[] = ["daily", "weekly", "monthly", "quarterly", "annually", "oncall"];
 
@@ -240,6 +243,89 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching transactions:", error);
       res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
+  app.get("/api/stripe/publishable-key", async (req, res) => {
+    try {
+      const publishableKey = await getStripePublishableKey();
+      res.json({ publishableKey });
+    } catch (error) {
+      console.error("Error getting Stripe publishable key:", error);
+      res.status(500).json({ error: "Failed to get Stripe configuration" });
+    }
+  });
+
+  app.get("/api/stripe/products", async (req, res) => {
+    try {
+      const rows = await stripeStorage.listProductsWithPrices();
+      
+      const productsMap = new Map();
+      for (const row of rows as any[]) {
+        if (!productsMap.has(row.product_id)) {
+          productsMap.set(row.product_id, {
+            id: row.product_id,
+            name: row.product_name,
+            description: row.product_description,
+            active: row.product_active,
+            metadata: row.product_metadata,
+            images: row.product_images,
+            prices: []
+          });
+        }
+        if (row.price_id) {
+          productsMap.get(row.product_id).prices.push({
+            id: row.price_id,
+            unit_amount: row.unit_amount,
+            currency: row.currency,
+            recurring: row.recurring,
+            active: row.price_active,
+            metadata: row.price_metadata,
+          });
+        }
+      }
+
+      res.json({ data: Array.from(productsMap.values()) });
+    } catch (error) {
+      console.error("Error listing products:", error);
+      res.status(500).json({ error: "Failed to list products" });
+    }
+  });
+
+  app.get("/api/stripe/prices", async (req, res) => {
+    try {
+      const prices = await stripeStorage.listPrices();
+      res.json({ data: prices });
+    } catch (error) {
+      console.error("Error listing prices:", error);
+      res.status(500).json({ error: "Failed to list prices" });
+    }
+  });
+
+  app.post("/api/stripe/checkout", async (req, res) => {
+    try {
+      const { priceId, email } = req.body;
+
+      if (!priceId) {
+        return res.status(400).json({ error: "Price ID is required" });
+      }
+
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+
+      const session = await stripeService.createCheckoutSession(
+        null,
+        priceId,
+        `${baseUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+        `${baseUrl}/purchase`,
+        email
+      );
+
+      res.json({ url: session.url, sessionId: session.id });
+    } catch (error: any) {
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ error: error.message || "Failed to create checkout session" });
     }
   });
 
