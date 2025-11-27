@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Boardroom from "@/pages/Boardroom";
 import Agents from "@/pages/Agents";
 import Analytics from "@/pages/Analytics";
+import Dashboard from "@/pages/Dashboard";
 import Placeholder from "@/pages/Placeholder";
 import NotFound from "@/pages/not-found";
 
@@ -27,12 +28,7 @@ function Router() {
           description="Quantum-resistant encryption and security protocols"
         />
       </Route>
-      <Route path="/wallet">
-        <Placeholder 
-          title="UPX Wallet" 
-          description="Multi-chain wallet for UPX token management"
-        />
-      </Route>
+      <Route path="/wallet" component={Dashboard} />
       <Route path="/reports">
         <Placeholder 
           title="Reports Archive" 

@@ -219,5 +219,29 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/portfolio", (req, res) => {
+    res.json({
+      totalValue: "$12,450.00",
+      upxBalance: "45,000 UPX",
+      upxValue: "$9,000.00",
+      change24h: 5.2,
+      walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f6aa45",
+    });
+  });
+
+  app.get("/api/transactions", async (req, res) => {
+    try {
+      const transactions = [
+        { id: "1", type: "purchase", amount: "5000", currency: "UPX", status: "completed", txHash: "0xabc...123", chain: "Ethereum", createdAt: new Date().toISOString() },
+        { id: "2", type: "transfer", amount: "1000", currency: "UPX", status: "completed", txHash: "0xdef...456", chain: "Polygon", createdAt: new Date(Date.now() - 86400000).toISOString() },
+        { id: "3", type: "purchase", amount: "2500", currency: "UPX", status: "pending", chain: "Ethereum", createdAt: new Date(Date.now() - 172800000).toISOString() },
+      ];
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
   return httpServer;
 }
