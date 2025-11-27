@@ -13,6 +13,7 @@ import Boardroom from "@/pages/Boardroom";
 import Agents from "@/pages/Agents";
 import Analytics from "@/pages/Analytics";
 import Dashboard from "@/pages/Dashboard";
+import Wallet from "@/pages/Wallet";
 import Purchase from "@/pages/Purchase";
 import PurchaseSuccess from "@/pages/PurchaseSuccess";
 import Placeholder from "@/pages/Placeholder";
@@ -30,7 +31,8 @@ function Router() {
           description="Quantum-resistant encryption and security protocols"
         />
       </Route>
-      <Route path="/wallet" component={Dashboard} />
+      <Route path="/wallet" component={Wallet} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/purchase" component={Purchase} />
       <Route path="/purchase/success" component={PurchaseSuccess} />
       <Route path="/reports">
