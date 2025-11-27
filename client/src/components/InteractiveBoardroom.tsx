@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Zap, Play } from "lucide-react";
 import { CONTRACT_CONFIG } from "@/lib/contractConfig";
+import { BreezeLink } from "@/lib/breezeLink";
 import { NANO_AGENTS } from "@shared/schema";
 
 interface InteractiveBoardroomProps {
@@ -16,11 +17,13 @@ interface InteractiveBoardroomProps {
 export function InteractiveBoardroom({
   onRunSimulation,
   isSimulationLoading = false,
-  discussion = "Boardroom awaiting updates...",
+  discussion: initialDiscussion = "Boardroom awaiting updates...",
 }: InteractiveBoardroomProps) {
   const [balances, setBalances] = useState<Record<string, string>>({});
+  const [discussion, setDiscussion] = useState<string>(initialDiscussion);
+  const [breezeLoading, setBreezeLoading] = useState(false);
 
-  // Generate mock balances (in production, fetch from blockchain)
+  // Generate mock balances and fetch Breeze review
   useEffect(() => {
     const mockBalances = NANO_AGENTS.reduce(
       (acc, agent) => {
@@ -30,7 +33,34 @@ export function InteractiveBoardroom({
       {} as Record<string, string>
     );
     setBalances(mockBalances);
-  }, []);
+
+    // Ask Breeze for initial boardroom review
+    async function askBreeze() {
+      setBreezeLoading(true);
+      try {
+        const breeze = new BreezeLink("Prime Brain", "manager");
+        const agentNames = NANO_AGENTS.map((a) => a.name).join(", ");
+        const response = await breeze.requestIdeaReview(
+          `Initial Nano Agent balances established: ${agentNames}. Please review boardroom readiness.`
+        );
+        
+        if (response && typeof response === "object" && "message" in response) {
+          setDiscussion(String(response.message));
+        } else if (response && typeof response === "object" && "fallback" in response) {
+          setDiscussion(String(response.fallback));
+        } else {
+          setDiscussion(initialDiscussion);
+        }
+      } catch (error) {
+        console.error("Breeze review error:", error);
+        setDiscussion(initialDiscussion);
+      } finally {
+        setBreezeLoading(false);
+      }
+    }
+
+    askBreeze();
+  }, [initialDiscussion]);
 
   return (
     <div className="space-y-6">
@@ -93,8 +123,13 @@ export function InteractiveBoardroom({
       {/* Discussion Log */}
       {discussion && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Boardroom Discussion</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <CardTitle className="text-sm">Breeze Review & Boardroom Discussion</CardTitle>
+            {breezeLoading && (
+              <Badge variant="outline" className="text-xs">
+                Breeze Thinking...
+              </Badge>
+            )}
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-48 w-full rounded border border-purple-500/20 p-3 bg-black/20">
