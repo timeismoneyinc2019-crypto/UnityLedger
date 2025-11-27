@@ -45,7 +45,7 @@ export default function Boardroom2045() {
               onClick={() => setSelected(agent)}
               className="cursor-pointer text-center p-2 rounded-lg 
               bg-[#1F002F55] hover:bg-[#4B00AA66] transition-all 
-              shadow-md border border-[#4B00AA33]"
+              shadow-md border border-[#4B00AA33] hover:animate-hover-pulse"
               data-testid={`agent-${agent.toLowerCase()}`}
             >
               <div className="text-purple-200 font-semibold tracking-wide">
