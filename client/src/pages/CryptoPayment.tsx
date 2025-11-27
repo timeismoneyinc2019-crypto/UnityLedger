@@ -11,10 +11,10 @@ import {
   AlertCircle,
   ArrowLeft,
   ExternalLink,
-  QrCode,
   Wallet
 } from "lucide-react";
 import { SiEthereum, SiPolygon, SiSolana, SiBitcoin } from "react-icons/si";
+import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CryptoNetwork {
@@ -130,12 +130,18 @@ export default function CryptoPayment() {
 
   const generateQRData = () => {
     const amount = calculateCryptoAmount(selectedPackage.usd, selectedNetwork.rate);
-    if (selectedNetwork.id === "ethereum" || selectedNetwork.id === "polygon") {
-      return `ethereum:${selectedNetwork.address}?value=${amount}`;
+    const amountNum = parseFloat(amount);
+    
+    if (selectedNetwork.id === "ethereum") {
+      const weiAmount = BigInt(Math.floor(amountNum * 1e18)).toString();
+      return `ethereum:${selectedNetwork.address}@1?value=${weiAmount}`;
+    } else if (selectedNetwork.id === "polygon") {
+      const weiAmount = BigInt(Math.floor(amountNum * 1e18)).toString();
+      return `ethereum:${selectedNetwork.address}@137?value=${weiAmount}`;
     } else if (selectedNetwork.id === "bitcoin") {
       return `bitcoin:${selectedNetwork.address}?amount=${amount}`;
     } else if (selectedNetwork.id === "solana") {
-      return `solana:${selectedNetwork.address}?amount=${amount}`;
+      return `solana:${selectedNetwork.address}?amount=${amount}&label=UnityPay%20UPX&memo=UPX%20Token%20Purchase`;
     }
     return selectedNetwork.address;
   };
@@ -361,8 +367,14 @@ export default function CryptoPayment() {
                     <span>Time remaining: {formatTime(timeRemaining)}</span>
                   </div>
                   <div className="p-4 rounded-lg bg-muted/50 flex flex-col items-center gap-3">
-                    <div className="w-32 h-32 bg-white rounded-lg flex items-center justify-center">
-                      <QrCode className="w-24 h-24 text-black" />
+                    <div className="w-36 h-36 bg-white rounded-lg flex items-center justify-center p-2">
+                      <QRCodeSVG 
+                        value={generateQRData()} 
+                        size={128}
+                        level="M"
+                        includeMargin={false}
+                        data-testid="qr-code-payment"
+                      />
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
                       Scan QR code with your wallet app
