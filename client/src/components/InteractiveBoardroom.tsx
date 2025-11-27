@@ -24,7 +24,7 @@ export function InteractiveBoardroom({
   useEffect(() => {
     const mockBalances = NANO_AGENTS.reduce(
       (acc, agent) => {
-        acc[agent] = (Math.random() * 10000).toFixed(2);
+        acc[agent.id] = (Math.random() * 10000).toFixed(2);
         return acc;
       },
       {} as Record<string, string>
@@ -63,12 +63,12 @@ export function InteractiveBoardroom({
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {NANO_AGENTS.map((agent) => (
               <div
-                key={agent}
+                key={agent.id}
                 className="p-3 rounded-lg bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20"
               >
-                <p className="text-xs font-semibold text-purple-300">{agent}</p>
+                <p className="text-xs font-semibold text-purple-300">{agent.name}</p>
                 <p className="text-sm font-mono font-bold text-white mt-2">
-                  {balances[agent] || "0"} UPX
+                  {balances[agent.id] || "0"} UPX
                 </p>
               </div>
             ))}

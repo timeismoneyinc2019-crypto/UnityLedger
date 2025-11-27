@@ -143,94 +143,98 @@ export default function Boardroom() {
               size="sm"
               onClick={() => runMeetingMutation.mutate()}
               disabled={runMeetingMutation.isPending}
-            data-testid="button-run-meeting"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Run {activeMeetingType.charAt(0).toUpperCase() + activeMeetingType.slice(1)} Meeting
-          </Button>
-        </div>
-      </div>
+              data-testid="button-run-meeting"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Run {activeMeetingType.charAt(0).toUpperCase() + activeMeetingType.slice(1)} Meeting
+            </Button>
+          </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard 
-          icon={Users} 
-          label="Active Agents" 
-          value="12" 
-          subtext="All operational"
-          color="text-green-500"
-        />
-        <StatCard 
-          icon={Activity} 
-          label="Today's Actions" 
-          value="156" 
-          subtext="+23% from yesterday"
-          color="text-blue-500"
-        />
-        <StatCard 
-          icon={Calendar} 
-          label="Meetings" 
-          value="6" 
-          subtext="Types available"
-          color="text-purple-500"
-        />
-        <StatCard 
-          icon={isConnected ? Wifi : WifiOff} 
-          label="Prime Brain" 
-          value={isConnected ? "Online" : "Connecting..."} 
-          subtext={isConnected ? `${clientCount} connected` : "Reconnecting..."}
-          color={isConnected ? "text-green-500" : "text-yellow-500"}
-        />
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 min-w-0">
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm mb-6">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base font-semibold">Meeting Type</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MeetingTabs 
-                types={MEETING_TYPES}
-                activeType={activeMeetingType}
-                onTypeChange={handleMeetingTypeChange}
-                isLoading={reportLoading}
-              />
-            </CardContent>
-          </Card>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 max-w-md">
-              <TabsTrigger value="meeting" data-testid="tab-meeting">
-                Meeting Report
-              </TabsTrigger>
-              <TabsTrigger value="agents" data-testid="tab-agents">
-                Nano Agents
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="meeting" className="mt-4">
-              <MeetingReport 
-                report={report || null} 
-                isLoading={reportLoading} 
-              />
-            </TabsContent>
-            
-            <TabsContent value="agents" className="mt-4">
-              <AgentGrid agents={NANO_AGENTS} />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        <div className="w-full lg:w-96 lg:shrink-0">
-          <div className="h-[500px] lg:h-[calc(100vh-280px)] lg:sticky lg:top-24">
-            <ChatInterface 
-              messages={chatMessages}
-              onSendMessage={handleSendMessage}
-              isLoading={chatMutation.isPending}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard 
+              icon={Users} 
+              label="Active Agents" 
+              value="12" 
+              subtext="All operational"
+              color="text-green-500"
+            />
+            <StatCard 
+              icon={Activity} 
+              label="Today's Actions" 
+              value="156" 
+              subtext="+23% from yesterday"
+              color="text-blue-500"
+            />
+            <StatCard 
+              icon={Calendar} 
+              label="Meetings" 
+              value="6" 
+              subtext="Types available"
+              color="text-purple-500"
+            />
+            <StatCard 
+              icon={isConnected ? Wifi : WifiOff} 
+              label="Prime Brain" 
+              value={isConnected ? "Online" : "Connecting..."} 
+              subtext={isConnected ? `${clientCount} connected` : "Reconnecting..."}
+              color={isConnected ? "text-green-500" : "text-yellow-500"}
             />
           </div>
+
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex-1 min-w-0">
+              <Card className="border-border/50 bg-card/80 backdrop-blur-sm mb-6">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base font-semibold">Meeting Type</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <MeetingTabs 
+                    types={MEETING_TYPES}
+                    activeType={activeMeetingType}
+                    onTypeChange={handleMeetingTypeChange}
+                    isLoading={reportLoading}
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Meeting Report</h3>
+                  <MeetingReport 
+                    report={report || null} 
+                    isLoading={reportLoading} 
+                  />
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Nano Agents</h3>
+                  <AgentGrid agents={NANO_AGENTS} />
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full lg:w-96 lg:shrink-0">
+              <div className="h-[500px] lg:h-[calc(100vh-280px)] lg:sticky lg:top-24">
+                <ChatInterface 
+                  messages={chatMessages}
+                  onSendMessage={handleSendMessage}
+                  isLoading={chatMutation.isPending}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === "chat" && (
+        <div className="max-w-4xl mx-auto">
+          <ChatInterface 
+            messages={chatMessages}
+            onSendMessage={handleSendMessage}
+            isLoading={chatMutation.isPending}
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 }
