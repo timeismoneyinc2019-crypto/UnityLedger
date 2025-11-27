@@ -26,8 +26,7 @@ async function initStripe() {
   try {
     console.log('Initializing Stripe schema...');
     await runMigrations({ 
-      databaseUrl,
-      schema: 'stripe'
+      databaseUrl
     });
     console.log('Stripe schema ready');
 
