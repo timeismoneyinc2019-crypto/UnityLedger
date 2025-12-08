@@ -41,7 +41,7 @@ function Navbar({ setPage }) {
 // Token Dashboard
 function TokenCard() {
   const [balance, setBalance] = useState(0);
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
+  const contractAddress = process.env.REACT_APP_UPX_CONTRACT;
 
   useEffect(() => {
     async function fetchBalance() {
@@ -73,7 +73,7 @@ function Wallet() {
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
-  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
+  const contractAddress = process.env.REACT_APP_UPX_CONTRACT;
 
   useEffect(() => {
     async function connectWallet() {
@@ -154,7 +154,7 @@ function Analytics() {
   );
 }
 
-// Boardroom with full intelligent AI
+// Boardroom with AI Guardians + Nano-Agent
 function Boardroom() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -164,20 +164,20 @@ function Boardroom() {
   const intelligentAIResponse = (msg) => {
     aiMemoryRef.current.push({ role: "user", content: msg });
     let response = "";
-
     const lower = msg.toLowerCase();
+
     if (lower.includes("balance") || lower.includes("upx")) {
-      response = "Guardian: Your UPX balance is strong. Long-term strategy suggests holding while monitoring market signals.";
+      response = "Guardian: Your UPX balance is strong. Hold strategically.";
     } else if (lower.includes("swap") || lower.includes("exchange")) {
-      response = "Nano-Agent: Consider diversifying: swap a portion of UPX to complementary assets to mitigate risk.";
+      response = "Nano-Agent: Consider diversifying: swap a portion of UPX to complementary assets.";
     } else if (lower.includes("project") || lower.includes("task")) {
-      response = "Guardian: Prioritize your Trinity project tasks in order of impact and feasibility.";
+      response = "Guardian: Prioritize Trinity tasks based on impact and feasibility.";
     } else if (lower.includes("code") || lower.includes("develop")) {
-      response = "Nano-Agent: Modularize your code and implement robust AI agent interactions for efficiency and scalability.";
+      response = "Nano-Agent: Modularize your code for efficient AI agent interaction.";
     } else if (lower.includes("strategy") || lower.includes("future")) {
-      response = "Guardian: Forward-thinking recommendation: identify emerging trends, automate repetitive processes, and focus on long-term scalability.";
+      response = "Guardian: Forward-thinking: identify trends, automate processes, focus on scalability.";
     } else {
-      response = "Guardian: I understand. Let's consider this carefully. Can you clarify the goal so I can provide a forward-looking suggestion?";
+      response = "Guardian: Please clarify your goal so I can provide strategic suggestions.";
     }
 
     aiMemoryRef.current.push({ role: "ai", content: response });
@@ -202,16 +202,14 @@ function Boardroom() {
     <div className="boardroom-page p-8 flex flex-col items-center">
       <h2 className="text-2xl text-orange-500 font-bold mb-4">Boardroom</h2>
       <div className="chat-window bg-white/5 rounded-xl p-4 w-full max-w-2xl h-96 overflow-y-auto mb-4">
-        {messages.map((m, i) => (
+        {messages.map((m,i)=>(
           <div key={i} className={`mb-2 ${m.from==="You"?"text-right":"text-left"}`}>
             <span className="font-bold">{m.from}: </span>{m.text}
           </div>
         ))}
       </div>
       <input value={input} onChange={e=>setInput(e.target.value)} placeholder="Type or speak..." className="mb-2 p-2 rounded text-black w-80"/>
-      <button onClick={sendMessage} className="bg-orange-500 px-6 py-3 rounded-lg text-white hover:shadow-lg transition">
-        Send / Speak
-      </button>
+      <button onClick={sendMessage} className="bg-orange-500 px-6 py-3 rounded-lg text-white hover:shadow-lg transition">Send / Speak</button>
     </div>
   );
 }
